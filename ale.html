@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Para Alexandra</title>
+    <style>
+        /* Importar fuentes elegantes */
+        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600;700&family=Montserrat:wght@200;300;400;500;600&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            overflow-x: hidden;
+            background: #000;
+            color: #fff;
+        }
+        
+        /* ===== CANVAS PARA ESTRELLAS Y EFECTOS ===== */
+        #space-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+        
+        /* ===== PANTALLA INICIAL (LANDING) ===== */
+        .landing-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: radial-gradient(ellipse at center, #1a0a2e 0%, #0f0518 50%, #000000 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            transition: opacity 2s ease;
+        }
+        
+        .landing-screen.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        /* Galaxia animada de fondo */
+        .galaxy-bg {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(ellipse at 30% 40%, rgba(138, 43, 226, 0.4) 0%, transparent 40%),
+                radial-gradient(ellipse at 70% 60%, rgba(236, 72, 153, 0.35) 0%, transparent 45%),
+                radial-gradient(ellipse at 50% 50%, rgba(59, 130, 246, 0.3) 0%, transparent 50%);
+            animation: galaxy-rotate 40s linear infinite;
+            opacity: 0.6;
+        }
+        
+        @keyframes galaxy-rotate {
+            0% { transform: rotate(0deg) scale(1); }
+            50% { transform: rotate(180deg) scale(1.1); }
+            100% { transform: rotate(360deg) scale(1); }
+        }
+        
+        /* Planetas decorativos */
+        .planet {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.7;
+        }
+        
+        .planet-1 {
+            width: 80px;
+            height: 80px;
+            top: 15%;
+            left: 10%;
+            background: radial-gradient(circle at 30% 30%, #ec4899, #7c3aed);
+            box-shadow: 0 0 60px rgba(236, 72, 153, 0.6);
+            animation: planet-float 15s ease-in-out infinite;
+        }
+        
+        .planet-2 {
+            width: 120px;
+            height: 120px;
+            bottom: 20%;
+            right: 8%;
+            background: radial-gradient(circle at 40% 40%, #8b5cf6, #3b82f6);
+            box-shadow: 0 0 80px rgba(139, 92, 246, 0.5);
+            animation: planet-float 20s ease-in-out infinite 5s;
+        }
+        
+        @keyframes planet-float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-30px) rotate(180deg); }
+        }
+        
+        /* Contenido de landing */
+        .landing-content {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            animation: landing-fade-in 2s ease-out;
+        }
+        
+        @keyframes landing-fade-in {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .landing-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(3rem, 8vw, 6rem);
+            font-weight: 700;
+            background: linear-gradient(135deg, #a78bfa 0%, #ec4899 50%, #3b82f6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1.5rem;
+            text-shadow: 0 0 80px rgba(167, 139, 250, 0.5);
+            animation: title-shimmer 4s ease-in-out infinite;
+            letter-spacing: 3px;
+        }
+        
+        @keyframes title-shimmer {
+            0%, 100% { 
+                filter: brightness(1) drop-shadow(0 0 30px rgba(167, 139, 250, 0.6));
+            }
+            50% { 
+                filter: brightness(1.4) drop-shadow(0 0 50px rgba(236, 72, 153, 0.8));
+            }
+        }
+        
+        .landing-subtitle {
+            font-family: 'Montserrat', sans-serif;
+            font-size: clamp(1rem, 2vw, 1.3rem);
+            font-weight: 300;
+            color: #c4b5fd;
+            margin-bottom: 3rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            opacity: 0.9;
+        }
+        
+        /* Botón continuar mejorado */
+        .continue-btn {
+            position: relative;
+            padding: 1.8rem 5rem;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 500;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: #fff;
+            background: linear-gradient(135deg, #7c3aed 0%, #ec4899 50%, #3b82f6 100%);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 60px;
+            cursor: pointer;
+            overflow: hidden;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 
+                0 20px 60px rgba(139, 92, 246, 0.4),
+                inset 0 0 20px rgba(255, 255, 255, 0.1);
+        }
+        
+        .continue-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.8s ease, height 0.8s ease;
+        }
+        
+        .continue-btn::after {
+            content: '→';
+            position: absolute;
+            right: 2rem;
+            font-size: 1.5rem;
+            transition: transform 0.5s ease;
+        }
+        
+        .continue-btn:hover {
+            transform: translateY(-8px) scale(1.05);
+            box-shadow: 
+                0 30px 80px rgba(139, 92, 246, 0.6),
+                inset 0 0 30px rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .continue-btn:hover::before {
+            width: 500px;
+            height: 500px;
+        }
+        
+        .continue-btn:hover::after {
+            transform: translateX(10px);
+        }
+        
+        /* ===== TRANSICIÓN CON COHETE ===== */
+        .rocket-transition {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: radial-gradient(ellipse at center, #1a0a2e 0%, #000000 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+        
+        .rocket-transition.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .rocket {
+            width: 100px;
+            height: 150px;
+            position: relative;
+            transform: translateY(100vh) rotate(0deg);
+        }
+        
+        .rocket.launch {
+            animation: rocket-launch 4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        
+        @keyframes rocket-launch {
+            0% {
+                transform: translateY(100vh) rotate(0deg) scale(1);
+            }
+            30% {
+                transform: translateY(40vh) rotate(-5deg) scale(1.2);
+            }
+            60% {
+                transform: translateY(-20vh) rotate(5deg) scale(1.3);
+            }
+            100% {
+                transform: translateY(-150vh) rotate(0deg) scale(0.8);
+            }
+        }
+        
+        .rocket-body {
+            width: 60px;
+            height: 100px;
+            background: linear-gradient(180deg, #e0e7ff 0%, #c7d2fe 100%);
+            border-radius: 50% 50% 0 0;
+            position: relative;
+            margin: 0 auto;
+            box-shadow: inset 0 -10px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .rocket-window {
+            width: 25px;
+            height: 25px;
+            background: radial-gradient(circle, #3b82f6, #1e40af);
+            border-radius: 50%;
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 3px solid #6366f1;
+        }
+        
+        .rocket-wing {
+            width: 0;
+            height: 0;
+            border-left: 25px solid transparent;
+            border-right: 25px solid transparent;
+            border-top: 40px solid #a5b4fc;
+            position: absolute;
+            bottom: 0;
+        }
+        
+        .rocket-wing-left {
+            left: -35px;
+        }
+        
+        .rocket-wing-right {
+            right: -35px;
+        }
+        
+        .rocket-fire {
+            width: 30px;
+            height: 50px;
+            background: linear-gradient(180deg, #fbbf24 0%, #f59e0b 50%, #ef4444 100%);
+            border-radius: 50% 50% 50% 50%;
+            position: absolute;
+            bottom: -45px;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: fire-flicker 0.1s ease-in-out infinite;
+        }
+        
+        @keyframes fire-flicker {
+            0%, 100% { transform: translateX(-50%) scaleY(1); opacity: 1; }
+            50% { transform: translateX(-50%) scaleY(0.9); opacity: 0.8; }
+        }
+        
+        .fire-particle {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #fbbf24;
+            border-radius: 50%;
+            bottom: -50px;
+            left: 50%;
+            animation: particle-rise 0.8s ease-out infinite;
+        }
+        
+        @keyframes particle-rise {
+            0% {
+                transform: translateY(0) translateX(-50%);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) translateX(calc(-50% + 20px));
+                opacity: 0;
+            }
+        }
+        
+        /* ===== PÁGINA PRINCIPAL ===== */
+        .main-page {
+            position: relative;
+            min-height: 100vh;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            padding: 3rem 2rem;
+            z-index: 10;
+            background: radial-gradient(ellipse at center, #1a0a2e 0%, #0f0518 50%, #000000 100%);
+        }
+        
+        .main-page.show {
+            display: flex;
+            animation: main-fade-in 2s ease-out;
+        }
+        
+        @keyframes main-fade-in {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        /* Nebulosas de fondo */
+        .nebula-decoration {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.4;
+            pointer-events: none;
+        }
+        
+        .nebula-1 {
+            width: 600px;
+            height: 600px;
+            top: -200px;
+            left: -200px;
+            background: radial-gradient(circle, rgba(138, 43, 226, 0.6), transparent);
+            animation: nebula-pulse 15s ease-in-out infinite;
+        }
+        
+        .nebula-2 {
+            width: 500px;
+            height: 500px;
+            bottom: -150px;
+            right: -150px;
+            background: radial-gradient(circle, rgba(236, 72, 153, 0.5), transparent);
+            animation: nebula-pulse 18s ease-in-out infinite 3s;
+        }
+        
+        .nebula-3 {
+            width: 400px;
+            height: 400px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.4), transparent);
+            animation: nebula-pulse 20s ease-in-out infinite 6s;
+        }
+        
+        @keyframes nebula-pulse {
+            0%, 100% { transform: scale(1); opacity: 0.4; }
+            50% { transform: scale(1.3); opacity: 0.6; }
+        }
+        
+        /* Contenedor del mensaje mejorado */
+        .message-container {
+            position: relative;
+            max-width: 1100px;
+            width: 100%;
+            background: rgba(10, 10, 30, 0.85);
+            backdrop-filter: blur(30px);
+            border: 2px solid rgba(167, 139, 250, 0.3);
+            border-radius: 40px;
+            padding: clamp(3rem, 6vw, 5rem);
+            box-shadow: 
+                0 30px 90px rgba(0, 0, 0, 0.6),
+                0 0 150px rgba(139, 92, 246, 0.3),
+                inset 0 0 100px rgba(167, 139, 250, 0.08);
+            animation: container-entrance 2s ease-out, container-float 8s ease-in-out infinite 2s;
+        }
+        
+        @keyframes container-entrance {
+            from {
+                opacity: 0;
+                transform: translateY(50px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        
+        @keyframes container-float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        .message-container::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(135deg, #7c3aed, #ec4899, #3b82f6);
+            border-radius: 40px;
+            opacity: 0;
+            z-index: -1;
+            transition: opacity 0.5s ease;
+        }
+        
+        .message-container:hover::before {
+            opacity: 0.3;
+            animation: border-glow 2s ease-in-out infinite;
+        }
+        
+        @keyframes border-glow {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.6; }
+        }
+        
+        /* Decoración de estrellas en el contenedor */
+        .star-decoration {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+        }
+        
+        .star-decoration:nth-child(1) { top: 10%; left: 5%; animation: star-twinkle 3s ease-in-out infinite; }
+        .star-decoration:nth-child(2) { top: 20%; right: 8%; animation: star-twinkle 4s ease-in-out infinite 1s; }
+        .star-decoration:nth-child(3) { bottom: 15%; left: 10%; animation: star-twinkle 3.5s ease-in-out infinite 2s; }
+        .star-decoration:nth-child(4) { bottom: 25%; right: 5%; animation: star-twinkle 4.5s ease-in-out infinite 0.5s; }
+        
+        @keyframes star-twinkle {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.3; transform: scale(0.8); }
+        }
+        
+        .message-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 3rem;
+            background: linear-gradient(135deg, #a78bfa 0%, #ec4899 50%, #60a5fa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            position: relative;
+            animation: title-float 3s ease-in-out infinite;
+            letter-spacing: 2px;
+        }
+        
+        @keyframes title-float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .message-title::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #ec4899, transparent);
+            border-radius: 2px;
+        }
+        
+        .message-text {
+            font-size: clamp(1.15rem, 2.2vw, 1.5rem);
+            line-height: 2.2;
+            color: #e0e7ff;
+            text-align: justify;
+            letter-spacing: 0.8px;
+            font-weight: 300;
+        }
+        
+        .message-text p {
+            margin-bottom: 2.5rem;
+            opacity: 0;
+            animation: text-reveal 1.2s ease-out forwards;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            position: relative;
+            padding-left: 20px;
+        }
+        
+        .message-text p::before {
+            content: '✦';
+            position: absolute;
+            left: 0;
+            color: #a78bfa;
+            font-size: 0.8em;
+            animation: star-spin 4s linear infinite;
+        }
+        
+        @keyframes star-spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .message-text p:nth-child(1) { animation-delay: 0.5s; }
+        .message-text p:nth-child(2) { animation-delay: 1s; }
+        .message-text p:nth-child(3) { animation-delay: 1.5s; }
+        .message-text p:nth-child(4) { animation-delay: 2s; }
+        .message-text p:nth-child(5) { animation-delay: 2.5s; }
+        
+        @keyframes text-reveal {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+                filter: blur(5px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+                filter: blur(0);
+            }
+        }
+        
+        .message-signature {
+            margin-top: 4rem;
+            text-align: right;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(1.3rem, 2.5vw, 1.8rem);
+            font-style: italic;
+            color: #c4b5fd;
+            opacity: 0;
+            animation: signature-appear 1.5s ease-out 3s forwards;
+        }
+        
+        @keyframes signature-appear {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .planet-1 { width: 50px; height: 50px; }
+            .planet-2 { width: 80px; height: 80px; }
+            
+            .continue-btn {
+                padding: 1.5rem 3.5rem;
+                font-size: 1rem;
+            }
+            
+            .message-container {
+                padding: 2.5rem 1.5rem;
+            }
+            
+            .message-text {
+                text-align: left;
+            }
+            
+            .message-text p {
+                padding-left: 15px;
+            }
+            
+            .rocket {
+                width: 70px;
+                height: 105px;
+            }
+            
+            .rocket-body {
+                width: 40px;
+                height: 70px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Canvas para efectos espaciales -->
+    <canvas id="space-canvas"></canvas>
+    
+    <!-- ===== PANTALLA INICIAL ===== -->
+    <div class="landing-screen" id="landing">
+        <div class="galaxy-bg"></div>
+        <div class="planet planet-1"></div>
+        <div class="planet planet-2"></div>
+        
+        <div class="landing-content">
+            <h1 class="landing-title">Para Alexandra</h1>
+            <p class="landing-subtitle">Un mensaje especial</p>
+            <button class="continue-btn" id="continueBtn">Comenzar</button>
+        </div>
+    </div>
+    
+    <!-- ===== TRANSICIÓN CON COHETE ===== -->
+    <div class="rocket-transition" id="rocketTransition">
+        <div class="rocket" id="rocket">
+            <div class="rocket-body">
+                <div class="rocket-window"></div>
+                <div class="rocket-wing rocket-wing-left"></div>
+                <div class="rocket-wing rocket-wing-right"></div>
+            </div>
+            <div class="rocket-fire"></div>
+            <div class="fire-particle" style="animation-delay: 0s;"></div>
+            <div class="fire-particle" style="animation-delay: 0.2s;"></div>
+            <div class="fire-particle" style="animation-delay: 0.4s;"></div>
+        </div>
+    </div>
+    
+    <!-- ===== PÁGINA PRINCIPAL ===== -->
+    <div class="main-page" id="mainPage">
+        <div class="nebula-decoration nebula-1"></div>
+        <div class="nebula-decoration nebula-2"></div>
+        <div class="nebula-decoration nebula-3"></div>
+        
+        <div class="message-container">
+            <div class="star-decoration"></div>
+            <div class="star-decoration"></div>
+            <div class="star-decoration"></div>
+            <div class="star-decoration"></div>
+            
+            <h2 class="message-title">Un Mensaje del Corazón</h2>
+            <div class="message-text">
+                <p>Prima, aunque el tiempo que hemos compartido juntos no ha sido tanto como me hubiera gustado, quiero que sepas que en cada momento, en cada conversación, me he dado cuenta de lo especial que eres. A veces no hace falta toda una vida para conectar con alguien; a veces, unos cuantos momentos genuinos son suficientes para crear un vínculo verdadero.</p>
+                
+                <p>Me he encariñado muchísimo contigo, más de lo que probablemente imaginas. Eres de esas personas que, aunque no veamos todos los días, ocupan un lugar importante en el corazón. Tu forma de ser, tu energía, tu autenticidad... todo eso hace que valga la pena cada segundo que compartimos. Y aunque la distancia o las circunstancias no nos permitan estar juntos con frecuencia, quiero que sepas que te tengo presente.</p>
+                
+                <p>Gracias por escucharme cuando he necesitado desahogarme, por tus palabras sinceras, por tu apoyo incondicional. Gracias por ser ese espacio seguro donde puedo ser yo mismo sin temor a ser juzgado. En un mundo donde a veces es difícil encontrar personas con quien hablar de verdad, tú has sido esa luz, esa persona que sabe escuchar y comprender sin pedir nada a cambio.</p>
+                
+                <p>Te quiero mucho, prima. No solo porque compartimos sangre, sino porque has demostrado ser una persona increíble, alguien con quien puedo contar, alguien que me ha brindado su cariño de manera genuina. Eres familia en el sentido más bonito de la palabra: alguien que está ahí, que se preocupa, que hace sentir acompañado incluso en la distancia.</p>
+                
+                <p>Esta página es solo un pequeño detalle para decirte todo esto que a veces cuesta expresar en persona. Quiero que sepas lo importante que eres para mí, lo mucho que valoro tu presencia en mi vida y lo agradecido que estoy de tenerte como prima. Espero que podamos seguir compartiendo muchos más momentos juntos, creando más recuerdos y fortaleciendo este vínculo tan bonito que hemos construido.</p>
+            </div>
+            
+            <div class="message-signature">
+                Con mucho cariño, tu primo ✨
+            </div>
+        </div>
+    </div>
+    
+    <!-- Audio -->
+    <audio id="backgroundMusic" loop>
+        <source src="In This Shirt.mp3" type="audio/mpeg">
+    </audio>
+    
+    <script>
+        // ===== CONFIGURACIÓN DEL CANVAS ESPACIAL =====
+        const canvas = document.getElementById('space-canvas');
+        const ctx = canvas.getContext('2d');
+        
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+        
+        // ===== SISTEMA DE PARTÍCULAS MEJORADO =====
+        class Star {
+            constructor() {
+                this.reset();
+                this.y = Math.random() * canvas.height;
+                this.opacity = Math.random();
+            }
+            
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = -10;
+                this.size = Math.random() * 2.5;
+                this.speedX = (Math.random() - 0.5) * 0.5;
+                this.speedY = Math.random() * 0.3 + 0.1;
+                this.opacity = Math.random();
+                this.fadeSpeed = (Math.random() * 0.02) + 0.005;
+                this.color = this.getStarColor();
+            }
+            
+            getStarColor() {
+                const colors = [
+                    'rgba(255, 255, 255,',
+                    'rgba(167, 139, 250,',
+                    'rgba(236, 72, 153,',
+                    'rgba(96, 165, 250,'
+                ];
+                return colors[Math.floor(Math.random() * colors.length)];
+            }
+            
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                
+                this.opacity += this.fadeSpeed;
+                if (this.opacity > 1 || this.opacity < 0.2) {
+                    this.fadeSpeed = -this.fadeSpeed;
+                }
+                
+                if (this.x < -10) this.x = canvas.width + 10;
+                if (this.x > canvas.width + 10) this.x = -10;
+                if (this.y > canvas.height + 10) this.reset();
+            }
+            
+            draw() {
+                ctx.fillStyle = this.color + this.opacity + ')';
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = this.color + '0.8)';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            }
+        }
+        
+        // Crear estrellas
+        const stars = [];
+        const starCount = 200;
+        
+        for (let i = 0; i < starCount; i++) {
+            stars.push(new Star());
+        }
+        
+        // Cometas ocasionales
+        class Comet {
+            constructor() {
+                this.reset();
+            }
+            
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = -50;
+                this.speedX = (Math.random() - 0.5) * 3;
+                this.speedY = Math.random() * 5 + 3;
+                this.size = Math.random() * 2 + 1;
+                this.length = Math.random() * 80 + 40;
+                this.opacity = Math.random() * 0.5 + 0.5;
+            }
+            
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                this.opacity -= 0.003;
+                
+                if (this.y > canvas.height + 50 || this.opacity <= 0) {
+                    this.reset();
+                }
+            }
+            
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                
+                const angle = Math.atan2(this.speedY, this.speedX);
+                ctx.rotate(angle);
+                
+                const gradient = ctx.createLinearGradient(0, 0, -this.length, 0);
+                gradient.addColorStop(0, `rgba(255, 255, 255, ${this.opacity})`);
+                gradient.addColorStop(0.5, `rgba(167, 139, 250, ${this.opacity * 0.6})`);
+                gradient.addColorStop(1, 'rgba(167, 139, 250, 0)');
+                
+                ctx.fillStyle = gradient;
+                ctx.fillRect(-this.length, -this.size / 2, this.length, this.size);
+                
+                ctx.restore();
+            }
+        }
+        
+        const comets = [];
+        for (let i = 0; i < 3; i++) {
+            comets.push(new Comet());
+        }
+        
+        // Animar todo
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            stars.forEach(star => {
+                star.update();
+                star.draw();
+            });
+            
+            comets.forEach(comet => {
+                comet.update();
+                comet.draw();
+            });
+            
+            requestAnimationFrame(animate);
+        }
+        
+        animate();
+        
+        // ===== FUNCIONALIDAD DEL BOTÓN Y TRANSICIÓN =====
+        const continueBtn = document.getElementById('continueBtn');
+        const landing = document.getElementById('landing');
+        const rocketTransition = document.getElementById('rocketTransition');
+        const rocket = document.getElementById('rocket');
+        const mainPage = document.getElementById('mainPage');
+        const music = document.getElementById('backgroundMusic');
+        
+        continueBtn.addEventListener('click', () => {
+            // Reproducir música
+            music.play().catch(error => {
+                console.log('No se pudo reproducir el audio automáticamente:', error);
+            });
+            
+            // Iniciar secuencia de transición
+            landing.classList.add('fade-out');
+            
+            setTimeout(() => {
+                landing.style.display = 'none';
+                rocketTransition.classList.add('active');
+                rocket.classList.add('launch');
+                
+                // Mostrar página principal después del viaje del cohete
+                setTimeout(() => {
+                    rocketTransition.classList.remove('active');
+                    mainPage.classList.add('show');
+                }, 4000);
+            }, 2000);
+        });
+        
+        // ===== EFECTO PARALLAX AVANZADO =====
+        let mouseX = 0;
+        let mouseY = 0;
+        let currentX = 0;
+        let currentY = 0;
+        
+        document.addEventListener('mousemove', (e) => {
+            mouseX = (e.clientX / window.innerWidth) - 0.5;
+            mouseY = (e.clientY / window.innerHeight) - 0.5;
+        });
+        
+        function updateParallax() {
+            currentX += (mouseX - currentX) * 0.05;
+            currentY += (mouseY - currentY) * 0.05;
+            
+            const nebulas = document.querySelectorAll('.nebula-decoration');
+            nebulas.forEach((nebula, index) => {
+                const speed = (index + 1) * 15;
+                const x = currentX * speed;
+                const y = currentY * speed;
+                nebula.style.transform = `translate(${x}px, ${y}px)`;
+            });
+            
+            const planets = document.querySelectorAll('.planet');
+            planets.forEach((planet, index) => {
+                const speed = (index + 1) * 8;
+                const x = currentX * speed;
+                const y = currentY * speed;
+                const currentTransform = planet.style.transform || '';
+                planet.style.transform = currentTransform.replace(/translate\([^)]+\)/g, '') + ` translate(${x}px, ${y}px)`;
+            });
+            
+            requestAnimationFrame(updateParallax);
+        }
+        
+        updateParallax();
+        
+        // ===== EFECTO DE SCROLL SUAVE EN LA PÁGINA PRINCIPAL =====
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            const container = document.querySelector('.message-container');
+            
+            if (container) {
+                const parallaxSpeed = 0.3;
+                container.style.transform = `translateY(${scrolled * parallaxSpeed}px)`;
+            }
+        });
+        
+        // ===== CREAR PARTÍCULAS ADICIONALES AL HACER HOVER EN EL CONTENEDOR =====
+        const messageContainer = document.querySelector('.message-container');
+        
+        if (messageContainer) {
+            messageContainer.addEventListener('mouseenter', () => {
+                createSparkles();
+            });
+        }
+        
+        function createSparkles() {
+            for (let i = 0; i < 10; i++) {
+                setTimeout(() => {
+                    const sparkle = document.createElement('div');
+                    sparkle.className = 'sparkle';
+                    sparkle.style.cssText = `
+                        position: absolute;
+                        width: 4px;
+                        height: 4px;
+                        background: white;
+                        border-radius: 50%;
+                        pointer-events: none;
+                        left: ${Math.random() * 100}%;
+                        top: ${Math.random() * 100}%;
+                        animation: sparkle-fade 1.5s ease-out forwards;
+                        box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+                    `;
+                    
+                    messageContainer.appendChild(sparkle);
+                    
+                    setTimeout(() => {
+                        sparkle.remove();
+                    }, 1500);
+                }, i * 100);
+            }
+        }
+        
+        // Añadir animación de sparkle
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes sparkle-fade {
+                0% {
+                    opacity: 0;
+                    transform: scale(0) translateY(0);
+                }
+                50% {
+                    opacity: 1;
+                    transform: scale(1.5) translateY(-20px);
+                }
+                100% {
+                    opacity: 0;
+                    transform: scale(0) translateY(-40px);
+                }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // ===== DETECTAR SI EL USUARIO ESTÁ EN MÓVIL PARA OPTIMIZAR =====
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        
+        if (isMobile) {
+            // Reducir número de estrellas en móvil para mejor rendimiento
+            stars.length = 100;
+            comets.length = 1;
+        }
+    </script>
+</body>
+</html>
